@@ -1,6 +1,7 @@
 from tqdm.auto import tqdm
 from language_model import LMAccuracy
 import torch
+from timeit import default_timer
 
 
 def train_epoch(dataloader, model, loss_fn, optimizer, device):
@@ -45,29 +46,42 @@ def evaluate(dataloader, model, loss_fn, device):
 
 
 def train(
-    train_loader, test_loader, model, loss_fn, optimizer, device, num_epochs
+    train_loader, test_loader, model, loss_fn,
+    optimizer, device, num_epochs, verbose=True
 ):
-    test_losses = []
-    train_losses = []
-    test_accuracies = []
-    train_accuracies = []
+    stat = {
+        'test_loss': [], 'train_loss': [],
+        'test_acc': [], 'train_acc': [],
+        'epoch': [], 'time': []
+    }
+    start_time = default_timer()
     for epoch in range(num_epochs):
         train_epoch(train_loader, model, loss_fn, optimizer, device)
 
         train_loss, train_acc = evaluate(train_loader, model, loss_fn, device)
-        train_accuracies.append(train_acc)
-        train_losses.append(train_loss)
+        stat['train_acc'].append(train_acc)
+        stat['train_loss'].append(train_loss)
 
         test_loss, test_acc = evaluate(test_loader, model, loss_fn, device)
-        test_accuracies.append(test_acc)
-        test_losses.append(test_loss)
+        stat['test_acc'].append(test_acc)
+        stat['test_loss'].append(test_loss)
 
-        print(
-            'Epoch: {0:d}/{1:d}. Loss (Train/Test): {2:.3f}/{3:.3f}. Accuracy (Train/Test): {4:.3f}/{5:.3f}'.format(
-                epoch + 1, num_epochs, train_losses[-1], test_losses[-1], train_accuracies[-1], test_accuracies[-1]
+        stat['epoch'].append(epoch+1)
+        stat['time'].append(default_timer() - start_time)
+
+        if verbose:
+            print(
+                f"Epoch: {stat['epoch'][-1]}/{num_epochs}." +
+                f" Loss (Train/Test): {stat['train_loss'][-1]:.3f}/{stat['test_loss'][-1]:.3f}." +
+                f" Accuracy (Train/Test): {stat['train_acc'][-1]:.3f}/{stat['test_acc'][-1]:.3f}"
             )
+
+    if not verbose:
+        print(
+            f"Loss (Train/Test): {stat['train_loss'][-1]:.3f}/{stat['test_loss'][-1]:.3f}." +
+            f" Accuracy (Train/Test): {stat['train_acc'][-1]:.3f}/{stat['test_acc'][-1]:.3f}"
         )
-    return train_losses, train_accuracies, test_losses, test_accuracies
+    return stat
 
 
 def decode(model, start_tokens, start_tokens_lens, max_generated_len=20, top_k=None):
