@@ -4,9 +4,10 @@ import torch
 from timeit import default_timer
 
 
-def train_epoch(dataloader, model, loss_fn, optimizer, device):
+def train_epoch(dataloader, model, loss_fn, optimizer, device, verbose=True):
     model.train()
-    for data in tqdm(dataloader):
+    iterator = tqdm(dataloader) if verbose else dataloader
+    for data in iterator:
         tokens, tokens_lens = data['tokens'], data['tokens_lens']
         tokens = tokens.to(device)
         tokens_lens = tokens_lens.to(device)
@@ -56,15 +57,15 @@ def train(
     }
     start_time = default_timer()
     for epoch in range(num_epochs):
-        train_epoch(train_loader, model, loss_fn, optimizer, device)
+        train_epoch(train_loader, model, loss_fn, optimizer, device, verbose)
 
         train_loss, train_acc = evaluate(train_loader, model, loss_fn, device)
-        stat['train_acc'].append(train_acc)
-        stat['train_loss'].append(train_loss)
+        stat['train_acc'].append(train_acc.item())
+        stat['train_loss'].append(train_loss.item())
 
         test_loss, test_acc = evaluate(test_loader, model, loss_fn, device)
-        stat['test_acc'].append(test_acc)
-        stat['test_loss'].append(test_loss)
+        stat['test_acc'].append(test_acc.item())
+        stat['test_loss'].append(test_loss.item())
 
         stat['epoch'].append(epoch+1)
         stat['time'].append(default_timer() - start_time)
