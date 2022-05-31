@@ -57,11 +57,11 @@ class QuestionsDataset(Dataset):
 
 def collate_fn(batch, padding_value, batch_first=False):
     texts = [data['text'] for data in batch]
-    
+
     tokens = [data['tokens'] for data in batch]
-    tokens = torch.nn.utils.rnn.pad_sequence(tokens, batch_first=False,
+    tokens = torch.nn.utils.rnn.pad_sequence(tokens, batch_first=batch_first,
                                              padding_value=padding_value)
-    
+
     tokens_lens = torch.stack([data['tokens_len'] for data in batch])
-    
+
     return {'texts': texts, 'tokens': tokens, 'tokens_lens': tokens_lens}
