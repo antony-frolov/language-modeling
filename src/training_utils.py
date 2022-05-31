@@ -48,7 +48,7 @@ def evaluate(dataloader, model, loss_fn, device):
 
 def train(
     train_loader, test_loader, model, loss_fn,
-    optimizer, device, num_epochs, verbose=True
+    optimizer, device, num_epochs, verbose=True, **kwargs
 ):
     stat = {
         'test_loss': [], 'train_loss': [],
