@@ -81,9 +81,13 @@ def plot_stats(stats, labels, title=None):
         axes[1, 1].plot(stat['epoch'], stat['test_acc'], label=label, linestyle=linestyle)
     axes[0, 0].legend()
     axes[0, 0].set_title('Train CE Loss')
+    axes[0, 0].set_ylabel('CE Loss')
     axes[0, 1].set_title('Test CE Loss')
     axes[1, 0].set_title('Train Accuracy')
+    axes[1, 0].set_xlabel('Epoch')
+    axes[1, 0].set_ylabel('Accuracy')
     axes[1, 1].set_title('Test Accuracy')
+    axes[1, 1].set_xlabel('Epoch')
     for ax in axes.flatten():
         ax.grid()
         ax.xaxis.set_tick_params(labelbottom=True)
